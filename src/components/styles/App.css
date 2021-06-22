@@ -22,9 +22,9 @@ body {
   flex-direction: column;
 }
 
-.Logo {
+.logo {
   align-self: center;
-  max-width: 100%;
+  max-width: 600px;
 }
 
 ul {

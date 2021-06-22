@@ -1,78 +1,64 @@
-import React from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {useState, useEffect}from 'react'
 import Character from './character.js'
 import PageLoading from './PageLoading.js'
 import PageError from './PageError.js'
 
-class CharactersContainer extends React.Component{
+function useFetchData(){
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const[data, setData]= useState([])
+  const[nextPage,setNextPage] = useState(`https://rickandmortyapi.com/api/character`)
 
-  constructor(props){
-    super(props)
-    this.state = {
-      loading:true,
-      error:null,
-      data: {
-        page:0,
-        characters: []
-      }
-    }
-  }
-
-  async componentDidMount(){
-    this.fetchData()
-  }
-
-  async fetchData(){ 
-
-    this.setState({
-      loading:true,
-      error:null
-    })
-
+  const fetchData = async ()=>{
+    setLoading(true)
+    setError(null)
+    
     try{
-      let numPage = this.state.data.page + 1
-      const url = `https://rickandmortyapi.com/api/character/?page=${numPage}`
-      const res = await fetch(url)
-      const data = await res.json()
-      this.setState({
-        loading:false,
-        data:{
-          characters: [].concat(this.state.data.characters, data.results),
-          page: numPage
-        }})
+      const res = await fetch(nextPage)
+      const dataC = await res.json()
+
+      setData([].concat(data,dataC.results))
+      setLoading(false)
+      setNextPage(dataC.info.next)
 
     }catch(error){
-      this.setState({
-        loading:false,
-        error:error
-      })
+      setLoading(false)
+      setError(error)
     }
-    
   }
 
-  render(){
-    if(this.state.loading){
-      return <PageLoading/>
-    }
+  useEffect(() => {
+    fetchData()
+  }, []);
 
-    if(this.state.error){
-      return <PageError error={this.state.error}/>
-    }
-
-    return(
-      <React.Fragment>
-        <ul className="row">
-          {this.state.data.characters.map(c=>
-            <Character  key={c.id} character= {c}/>
-          )}
-        </ul>
-        <button onClick={()=>{this.fetchData()}}>Loading More</button>
-      </React.Fragment> 
-
-      
-    )
-  }
-
+  return {loading,error,data,nextPage,fetchData}
 }
 
+
+
+function CharactersContainer (){
+
+  const {loading,data,error,nextPage,fetchData} = useFetchData()
+
+  console.log(data);
+
+
+  return (
+  <React.Fragment>
+    {loading && <PageLoading/>}
+    {error && <PageError/>}
+    <ul className="row">
+      {data.map(c=>
+        <Character  key={c.id} character= {c}/>
+      )}
+    </ul>
+    {nextPage !== null && <button onClick={()=>{fetchData()}}>Loading More</button> }
+  </React.Fragment> 
+  )
+}
 export default CharactersContainer
+
+
+
 
