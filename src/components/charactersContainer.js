@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState, useEffect}from 'react'
 import Character from './character.js'
-import PageLoading from './PageLoading.js'
+import Loader from './Loader.js'
 import PageError from './PageError.js'
 
 function useFetchData(){
@@ -46,13 +46,13 @@ function CharactersContainer (){
 
   return (
   <React.Fragment>
-    {loading && <PageLoading/>}
     {error && <PageError/>}
     <ul className="row">
       {data.map(c=>
         <Character  key={c.id} character= {c}/>
-      )}
+        )}
     </ul>
+    {loading && <Loader/>}
     {nextPage !== null && <button onClick={()=>{fetchData()}}>Loading More</button> }
   </React.Fragment> 
   )
